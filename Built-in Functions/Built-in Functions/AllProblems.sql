@@ -38,7 +38,7 @@ SELECT FirstName,LastName FROM V_EmployeesHiredAfter2000
 SELECT FirstName,LastName FROM Employees
 WHERE LEN(LastName)=5
 
----Problem 10.	Countries Holding ‘A’ 3 or More Times
+---Problem 10.	Countries Holding â€˜Aâ€™ 3 or More Times
 SELECT CountryName,IsoCode FROM Countries
 WHERE CountryName LIKE '%a%a%a%'
 ORDER BY IsoCode
