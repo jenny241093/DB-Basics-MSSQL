@@ -49,6 +49,13 @@ LOWER(PeakName+RIGHT(RiverName,LEN(RiverName)-1))AS Mix FROM Rivers,Peaks
 WHERE RIGHT(PeakName,1)=LEFT(RiverName,1)
 ORDER BY Mix
 ---Problem 12.	Games from 2011 and 2012 year
+SELECT*FROM Games
+SELECT TOP(50) Name,FORMAT(Start,'yyyy-MM-dd')AS Start FROM Games
+WHERE YEAR(Start) BETWEEN 2011 AND 2012
+ORDER BY Start, Name
+---Problem 13.	 User Email Providers
+SELECT*FROM Users
+SELECT Username, SUBSTRING(Email,CHARINDEX('@',Email)+1,LEN(Email)) AS [Email Provider]FROM Users
+ORDER BY [Email Provider],Username
 
-SELECT TOP (50) Name,Start FROM Games
-WHERE Start BETWEEN 2011 AND 2012
+---Problem 14.	 Get Users with IPAdress Like Pattern
