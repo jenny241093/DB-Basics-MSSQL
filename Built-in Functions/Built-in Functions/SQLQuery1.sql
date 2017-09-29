@@ -59,3 +59,47 @@ SELECT Username, SUBSTRING(Email,CHARINDEX('@',Email)+1,LEN(Email)) AS [Email Pr
 ORDER BY [Email Provider],Username
 
 ---Problem 14.	 Get Users with IPAdress Like Pattern
+SELECT Username, IpAddress FROM Users
+WHERE IpAddress LIKE '___.1%.%.___'
+ORDER BY Username
+
+---Problem 15.Show All Games with Duration and Part of the Day
+SELECT [Name] AS Game, 
+	CASE 
+		WHEN  DATEPART(HOUR,Start) BETWEEN 0 AND 11 THEN 'Morning'
+		WHEN  DATEPART(HOUR,Start )BETWEEN 12 AND 17 THEN 'Afternoon' 
+		WHEN  DATEPART(HOUR, Start) BETWEEN 18 AND 23 THEN 'Evening'  
+	END AS [Part of the Day],
+	CASE 
+	WHEN Duration <=3 THEN 'Extra Short'
+	WHEN Duration BETWEEN 4 AND 6 THEN 'Short'	
+	WHEN Duration >6 THEN 'Long'
+	ELSE 'Extra Long'
+END AS[Duration]
+FROM Games 
+ORDER BY Game,Duration,[Part of the Day]
+---Problem 16.	 Orders Table
+
+SELECT ProductName,OrderDate,DATEADD(DAY,3,OrderDate)AS [Pay Due],DATEADD(MONTH,1,OrderDate) AS[Deliver Due] FROM Orders
+
+---Problem 17.   People Table
+CREATE TABLE People
+(
+Id INT PRIMARY KEY IDENTITY,
+Name VARCHAR(50)NOT NULL,
+Birthdate DATETIME NOT NULL
+)
+--Write a query to find age in years,
+--- months, days and minutes for each person
+-- for the current time of executing the query.
+INSERT INTO People
+VALUES
+('Victor','2000-12-07'),
+('Steven','1992-09-10'),
+('Stephen','1910-09-19'),
+('John','2010-01-06')
+
+SELECT Name ,DATEDIFF(Year, Birthdate,GETDATE()) AS [Age in Years],
+       DATEDIFF(DAY, Birthdate,GETDATE()) AS [Age in Days],
+       DATEDIFF(MINUTE, Birthdate,GETDATE()) AS [Age in Minutes],
+ * FROM People
