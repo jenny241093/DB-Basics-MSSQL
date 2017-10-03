@@ -158,6 +158,40 @@ CREATE TABLE OrderItems(
   CONSTRAINT FK_OrderItems_Items FOREIGN KEY (ItemID) REFERENCES Items(ItemID)
 )
 --Problem 6.	University Database
-CREATE DATABASE UniversityDatabase
-USE UniversityDatabase
+--CREATE DATABASE UniversityDatabase
+--USE UniversityDatabase
 
+CREATE TABLE Majors
+(
+MajorID INT PRIMARY KEY,
+Name VARCHAR(50)NOT NULL,
+)
+CREATE TABLE Students
+(
+StudentID INT PRIMARY KEY,
+StudentNumber INT NOT NULL,
+StudentName VARCHAR(50) NOT NULL,
+MajorID INT,
+CONSTRAINT FK_Students_Majors FOREIGN KEY (MajorID) REFERENCES Majors(MajorID)
+)
+CREATE TABLE Agenda
+(
+StudentID INT,
+SubjectID INT ,
+CONSTRAINT PK_Agenda_ PRIMARY KEY(StudentID,SubjectID),
+CONSTRAINT FK_Agenda_Subject  FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID),
+CONSTRAINT FK_Agenda_Students  FOREIGN KEY(StudentID) REFERENCES Students(StudentID) 
+)
+CREATE TABLE Subjects
+(
+SubjectID INT PRIMARY KEY,
+SubjectName VARCHAR(50)
+)
+CREATE TABLE Payments
+(
+PaymentID INT PRIMARY KEY,
+PaymantDate DATE NOT NULL,
+PaymentAmount DECIMAL,
+StudentID INT,
+CONSTRAINT FK_Payments_Students FOREIGN KEY(StudentID) REFERENCES Students(StudentID)
+)
