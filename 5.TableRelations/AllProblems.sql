@@ -174,6 +174,11 @@ StudentName VARCHAR(50) NOT NULL,
 MajorID INT,
 CONSTRAINT FK_Students_Majors FOREIGN KEY (MajorID) REFERENCES Majors(MajorID)
 )
+CREATE TABLE Subjects
+(
+SubjectID INT PRIMARY KEY,
+SubjectName VARCHAR(50)
+)
 CREATE TABLE Agenda
 (
 StudentID INT,
@@ -182,11 +187,7 @@ CONSTRAINT PK_Agenda_ PRIMARY KEY(StudentID,SubjectID),
 CONSTRAINT FK_Agenda_Subject  FOREIGN KEY (SubjectID) REFERENCES Subjects(SubjectID),
 CONSTRAINT FK_Agenda_Students  FOREIGN KEY(StudentID) REFERENCES Students(StudentID) 
 )
-CREATE TABLE Subjects
-(
-SubjectID INT PRIMARY KEY,
-SubjectName VARCHAR(50)
-)
+
 CREATE TABLE Payments
 (
 PaymentID INT PRIMARY KEY,
@@ -195,3 +196,13 @@ PaymentAmount DECIMAL,
 StudentID INT,
 CONSTRAINT FK_Payments_Students FOREIGN KEY(StudentID) REFERENCES Students(StudentID)
 )
+
+--Problem 9.	*Peaks in Rila
+SELECT*FROM Peaks
+SELECT * FROM Mountains
+SELECT MountainRange,PeakName,Elevation FROM Peaks as p
+JOIN Mountains AS m ON p.MountainId=m.Id
+WHERE m.MountainRange='Rila'
+ORDER BY Elevation DESC
+
+
