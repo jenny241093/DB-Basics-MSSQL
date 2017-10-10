@@ -75,6 +75,10 @@ SELECT TOP 1 AVG(Salary) AS MinAverageSalary
 FROM Employees
 GROUP BY DepartmentID
 ORDER BY MinAverageSalary
+USE SoftUni
+SELECT MIN(AverageSalary)FROM
+(SELECT AVG(e.Salary) AS AverageSalary FROM Employees AS e
+GROUP BY DepartmentID)as AvgSalary
 
 
 --Problem 12.	Highest Peaks in Bulgaria
@@ -99,4 +103,41 @@ LEFT JOIN CountriesRivers AS cr ON cr.CountryCode=c.CountryCode
 LEFT JOIN Rivers AS r ON r.Id=cr.RiverId
 WHERE cont.ContinentName='Africa'
 ORDER BY c.CountryName
+
+--Problem 15.	*Continents and Currencies
+WITH CCYContUsage_CTE(ContinentCode,CurrencyCode,CurrencyUsage) AS
+(SELECT ContinentCode, CurrencyCode,COUNT(CurrencyCode) AS CurrencyUsage
+FROM Countries
+GROUP BY ContinentCode,CurrencyCode
+HAVING COUNT(CountryCode)>1
+)
+
+SELECT ContMax.ContinentCode,CurrencyCode,ContMax.CurrencyUsage
+FROM
+(
+SELECT ContinentCode,MAX(CurrencyUsage) AS CurrencyUsage
+FROM CCYContUsage_CTE
+GROUP BY ContinentCode) AS ContMax
+JOIN CCYContUsage_CTE AS ccy ON
+(ContMax.ContinentCode=ccy.ContinentCode AND ContMax.CurrencyUsage=ccy.CurrencyUsage)
+ORDER BY ContMax.ContinentCode
+
+--Problem 16.	Countries without any Mountains
+SELECT COUNT(CountryName) AS CountryCode FROM
+(SELECT CountryName ,MountainRange FROM Countries  AS c
+LEFT JOIN MountainsCountries AS mc ON mc.CountryCode=c.CountryCode
+LEFT JOIN Mountains AS m ON m.Id=mc.MountainId
+WHERE MountainRange IS NULL)AS CountMountains
+
+SELECT TOP 5 c.CountryName,MAX(p.Elevation) AS HighestPeakElevation,MAX(r.Length) AS LongestRiverLength FROM Countries AS c
+LEFT JOIN MountainsCountries AS mc ON mc.CountryCode=c.CountryCode
+LEFT JOIN Peaks AS p ON p.MountainId=mc.MountainId 
+LEFT JOIN CountriesRivers AS cr ON cr.CountryCode=c.CountryCode
+LEFT JOIN Rivers AS r ON r.Id=cr.RiverId
+GROUP BY c.CountryName
+ORDER BY HighestPeakElevation DESC,
+LongestRiverLength DESC,
+c.CountryName
+
+--Problem 18.	* Highest Peak Name and Elevation by Country
 
