@@ -122,6 +122,23 @@ JOIN CCYContUsage_CTE AS ccy ON
 (ContMax.ContinentCode=ccy.ContinentCode AND ContMax.CurrencyUsage=ccy.CurrencyUsage)
 ORDER BY ContMax.ContinentCode
 
+
+--SecondWay
+
+SELECT ContinentCode,CurrencyCode,CurrencyUsage
+FROM(
+SELECT ContinentCode,CurrencyCode,CurrencyUsage,
+DENSE_RANK()OVER(PARTITION BY (ContinentCode)ORDER BY CurrencyUsage DESC)
+ AS [RANK] 
+FROM
+(SELECT ContinentCode,CurrencyCode, COUNT(CurrencyCode)
+AS CurrencyUsage FROM Countries
+GROUP BY CurrencyCode,ContinentCode)AS currencies)
+AS RankedCurrencies
+WHERE [RANK] = 1 AND CurrencyUsage>1
+ORDER BY ContinentCode
+
+
 --Problem 16.	Countries without any Mountains
 SELECT COUNT(CountryName) AS CountryCode FROM
 (SELECT CountryName ,MountainRange FROM Countries  AS c
@@ -129,6 +146,7 @@ LEFT JOIN MountainsCountries AS mc ON mc.CountryCode=c.CountryCode
 LEFT JOIN Mountains AS m ON m.Id=mc.MountainId
 WHERE MountainRange IS NULL)AS CountMountains
 
+---Problem 17 
 SELECT TOP 5 c.CountryName,MAX(p.Elevation) AS HighestPeakElevation,MAX(r.Length) AS LongestRiverLength FROM Countries AS c
 LEFT JOIN MountainsCountries AS mc ON mc.CountryCode=c.CountryCode
 LEFT JOIN Peaks AS p ON p.MountainId=mc.MountainId 
@@ -141,3 +159,27 @@ c.CountryName
 
 --Problem 18.	* Highest Peak Name and Elevation by Country
 
+SELECT TOP 5 CountryName, 
+CASE  WHEN PeakName IS NULL THEN '(no highest peak)' 
+ELSE PeakName 
+END AS [Highest Peak Name],
+       CASE WHEN Elevation IS NULL THEN 0
+       ELSE Elevation
+END AS[Highest Peak Elevation],
+       CASE WHEN MountainRange IS NULL THEN '(no mountain)'
+       ELSE MountainRange
+END AS Mountain
+FROM 
+(SELECT CountryName,PeakName,Elevation,MountainRange,
+DENSE_RANK()OVER (PARTITION BY CountryName ORDER BY Elevation DESC)
+ AS [Rank]
+FROM
+   (SELECT c.CountryName,p.PeakName,p.Elevation,m.MountainRange
+   FROM Countries AS c
+    LEFT JOIN MountainsCountries AS mc ON c.CountryCode = mc.CountryCode
+   LEFT JOIN Mountains AS m ON mc.MountainId=m.Id
+ LEFT JOIN Peaks AS p ON p.MountainId=m.Id)
+ AS allpeaks) 
+ AS rankedPeaks
+WHERE [Rank]=1
+ORDER BY CountryName,[Highest Peak Name]
