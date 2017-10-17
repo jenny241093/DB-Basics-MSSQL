@@ -216,3 +216,17 @@ AS
 		  WHERE a.Id=@accountId
 
   EXEC usp_CalculateFutureValueForAccount 1, 0.10;
+--Problem 13. *Scalar Function: Cash in User Games Odd Rows
+  CREATE FUNCTION ufn_CashInUsersGames (@GameName NVARCHAR(MAX))
+RETURNS @oddRowsGames TABLE(SumCash MONEY)
+AS
+BEGIN
+ INSERT INTO @oddRowsGames
+					 SELECT SUM(Cash.Cash) FROM (SELECT ug.GameId, ug.Cash, ROW_NUMBER() OVER
+					 (PARTITION BY ug.GameId ORDER BY ug.Cash DESC)
+					 AS 'RowNumber'	 FROM UsersGames AS ug
+					 INNER JOIN Games AS g ON ug.GameId = g.Id
+					 WHERE g.Name = @gameName) AS Cash
+					 WHERE Cash.RowNumber % 2 <> 0
+ RETURN
+END
