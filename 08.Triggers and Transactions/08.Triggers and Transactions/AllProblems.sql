@@ -180,3 +180,99 @@ JOIN UserGameItems ugi ON ugi.UserGameId = ug.Id
 JOIN Items i ON i.Id = ugi.ItemId
 WHERE g.Name = 'Bali'
 ORDER BY Username, [Item Name]
+
+USE Diablo
+--Problem 7.	*Massive Shopping
+DECLARE @userId INT = (SELECT Id FROM Users WHERE Username='Stamat')
+DECLARE @gameId INT= (SELECT Id FROM Games WHERE [Name]='Safflower')
+DECLARE @userGameId INT = (SELECT Id FROM UsersGames WHERE UserId=@userId AND GameId = @gameId)
+BEGIN TRY
+       BEGIN TRANSACTION
+	   
+	        UPDATE UsersGames
+			SET Cash-=(SELECT SUM(Price)FROM Items WHERE MinLevel IN (11,12))
+			WHERE Id=@userGameId
+			DECLARE @userBalance DECIMAL (15,4)=(SELECT Cash FROM UsersGames WHERE Id=@userGameId)
+	   IF @userBalance<0
+	      BEGIN
+		  ROLLBACK;
+		  RETURN;
+		  END
+INSERT INTO UserGameItems
+SELECT Id,@userGameId FROM Items WHERE MinLevel IN (11,12)
+      COMMIT
+END TRY
+BEGIN CATCH
+   ROLLBACK
+END CATCH
+
+
+BEGIN TRY
+BEGIN TRANSACTION
+	   
+	        UPDATE UsersGames
+			SET Cash-=(SELECT SUM(Price)FROM Items WHERE MinLevel BETWEEN 19 AND 21)
+			WHERE Id=@userGameId
+			SET @userBalance=(SELECT Cash FROM UsersGames WHERE Id=@userGameId)
+	   IF @userBalance<0
+	      BEGIN
+		  ROLLBACK;
+		  RETURN;
+		  END
+INSERT INTO UserGameItems
+SELECT Id,@userGameId FROM Items WHERE MinLevel IN (11,12)
+      COMMIT
+END TRY
+BEGIN CATCH
+   ROLLBACK
+END CATCH
+
+
+SELECT i.Name AS [Item Name]
+FROM Items AS i
+JOIN UserGameItems AS u ON i.Id=u.ItemId
+WHERE u.UserGameId=@userGameId
+ORDER BY [Item Name]
+
+
+--Queries for SoftUni Database
+--Problem 8.	Employees with Three Projects
+USE SoftUni
+GO
+CREATE OR ALTER PROC usp_AssignProject(@employeeId INT,@projectID INT)
+AS
+DECLARE @projectsCount INT;
+BEGIN TRANSACTION
+INSERT INTO EmployeesProjects VALUES
+(@employeeId,@projectID) 
+SET @projectsCount  = (SELECT COUNT(*) FROM EmployeesProjects WHERE  EmployeeID=@employeeId )
+IF (@projectsCount>3)
+BEGIN
+ RAISERROR('The employee has too many projects!', 16, 1);
+   ROLLBACK
+END
+COMMIT
+
+SELECT * FROM EmployeesProjects
+
+
+--Problem 9.	Delete Employees
+CREATE TABLE Deleted_Employees(
+EmployeeId INT PRIMARY KEY NOT NULL,
+FirstName VARCHAR(20) NOT NULL,
+LastName VARCHAR (20) NOT NULL,
+MiddleName VARCHAR(20) NOT NULL,
+DepartmentId INT NOT NULL,
+JobTitle VARCHAR(20)NOT NULL,
+Salary MONEY NOT NULL
+)
+GO
+CREATE OR ALTER TRIGGER tr_DeleteEmp ON Employees 
+FOR DELETE
+AS
+BEGIN
+INSERT INTO Deleted_Employees
+ SELECT EmployeeID,FirstName,LastName,MiddleName,JobTitle,
+ DepartmentID,Salary FROM deleted
+
+ END
